@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 public class UserServiceFutureTest {
 
@@ -35,24 +36,24 @@ public class UserServiceFutureTest {
 
     @Test
     @DisplayName("존재하지 않는 user id 조회. 테스트 코드 실행이 금방 끝남")
-    void getUserEmptyIfInvalidUserIdIsGiven() {
+    void getUserEmptyIfInvalidUserIdIsGiven() throws ExecutionException, InterruptedException {
         // given
         String userId = "invalid_user_id";
 
         // when
-        Optional<User> user = userFutureService.getUserById(userId);
+        Optional<User> user = userFutureService.getUserById(userId).get(); // test코드의 경우 어쩔수 없이 동기로 동작시켜야 하므로 get() 메서드 사용
 
         // then
         Assertions.assertTrue(user.isEmpty());
     }
 
     @Test
-    void testGetUser() {
+    void testGetUser() throws ExecutionException, InterruptedException {
         // given
         String userId = "1234";
 
         // when
-        Optional<User> optionalUser = userFutureService.getUserById(userId);
+        Optional<User> optionalUser = userFutureService.getUserById(userId).get();
 
         // then
         Assertions.assertFalse(optionalUser.isEmpty());

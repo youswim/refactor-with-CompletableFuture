@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -24,31 +25,38 @@ public class UserFutureService {
     private final FollowFutureRepository followFutureRepository;
 
     @SneakyThrows
-    public Optional<User> getUserById(String id) {
-        return userFutureRepository.findById(id).get()
-                .map(this::getUser);
+    public CompletableFuture<Optional<User>> getUserById(String id) {
+        return userFutureRepository.findById(id)
+                .thenApply(userEntityOptional -> {
+                    return this.getUser(userEntityOptional);
+                });
     }
 
     @SneakyThrows
-    private User getUser(UserEntity user) {
-        var image = imageFutureRepository.findById(user.getProfileImageId()).get()
+    private Optional<User> getUser(Optional<UserEntity> userEntityOptional) { // 여기에 굳이 Optional을 사용할 이유가 있는가?
+        if (userEntityOptional.isEmpty()) return Optional.empty();
+        var userEntity = userEntityOptional.get(); // 위에서 empty인 경우는 반환했으므로, get을 바로 해도 된다.
+
+        var image = imageFutureRepository.findById(userEntity.getProfileImageId()).get()
                 .map(imageEntity -> new Image(imageEntity.getId(), imageEntity.getName(), imageEntity.getUrl()));
 
-        var articles = articleFutureRepository.findAllByUserId(user.getId()).get()
+        var articles = articleFutureRepository.findAllByUserId(userEntity.getId()).get()
                 .stream().map(articleEntity ->
                         new Article(articleEntity.getId(), articleEntity.getTitle(), articleEntity.getContent(), articleEntity.getUserId()))
                 .collect(Collectors.toList());
 
-        var follorCount = followFutureRepository.countByUserId(user.getId()).get();
+        var follorCount = followFutureRepository.countByUserId(userEntity.getId()).get();
 
 
-        return new User(
-                user.getId(),
-                user.getName(),
-                user.getAge(),
+        return Optional.of(
+                new User(
+                userEntity.getId(),
+                userEntity.getName(),
+                userEntity.getAge(),
                 image,
                 articles,
                 follorCount
-        );
+        ));
     }
+
 }
