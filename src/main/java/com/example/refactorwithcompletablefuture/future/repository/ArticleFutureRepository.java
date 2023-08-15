@@ -1,10 +1,10 @@
 package com.example.refactorwithcompletablefuture.future.repository;
 
 import com.example.refactorwithcompletablefuture.common.repository.ArticleEntity;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,12 +20,17 @@ public class ArticleFutureRepository {
         );
     }
 
-    @SneakyThrows
-    public List<ArticleEntity> findAllByUserId(String userId) {
-        log.info("ArticleRepository.findAllByUserId: {}", userId);
-        Thread.sleep(1000);
-        return articleEntities.stream()
-                .filter(articleEntity -> articleEntity.getUserId().equals(userId))
-                .collect(Collectors.toList());
+    public CompletableFuture<List<ArticleEntity>> findAllByUserId(String userId) {
+        return CompletableFuture.supplyAsync(() -> {
+            log.info("ArticleRepository.findAllByUserId: {}", userId);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return articleEntities.stream()
+                    .filter(articleEntity -> articleEntity.getUserId().equals(userId))
+                    .collect(Collectors.toList());
+        });
     }
 }
