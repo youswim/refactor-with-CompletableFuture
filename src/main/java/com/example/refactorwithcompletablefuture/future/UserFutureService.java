@@ -27,14 +27,18 @@ public class UserFutureService {
     @SneakyThrows
     public CompletableFuture<Optional<User>> getUserById(String id) {
         return userFutureRepository.findById(id)
-                .thenApply(userEntityOptional -> {
-                    return this.getUser(userEntityOptional);
-                });
+                .thenCompose(this::getUser); // 이걸로 왜 바꾼건지..?
     }
 
     @SneakyThrows
-    private Optional<User> getUser(Optional<UserEntity> userEntityOptional) { // 여기에 굳이 Optional을 사용할 이유가 있는가?
-        if (userEntityOptional.isEmpty()) return Optional.empty();
+    private CompletableFuture<Optional<User>> getUser(Optional<UserEntity> userEntityOptional) { // 여기에 굳이 Optional을 사용할 이유가 있는가?
+        if (userEntityOptional.isEmpty()) {
+//            var future = new CompletableFuture<Optional<User>>();
+//            future.complete(Optional.empty());
+//            return future;
+//            위 세줄을 아래 한줄로 표현 가능
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
         var userEntity = userEntityOptional.get(); // 위에서 empty인 경우는 반환했으므로, get을 바로 해도 된다.
 
         var image = imageFutureRepository.findById(userEntity.getProfileImageId()).get()
@@ -48,15 +52,18 @@ public class UserFutureService {
         var follorCount = followFutureRepository.countByUserId(userEntity.getId()).get();
 
 
-        return Optional.of(
-                new User(
-                userEntity.getId(),
-                userEntity.getName(),
-                userEntity.getAge(),
-                image,
-                articles,
-                follorCount
-        ));
+        return CompletableFuture.completedFuture(
+                Optional.of(
+                        new User(
+                                userEntity.getId(),
+                                userEntity.getName(),
+                                userEntity.getAge(),
+                                image,
+                                articles,
+                                follorCount
+                        )
+                )
+        );
     }
 
 }
