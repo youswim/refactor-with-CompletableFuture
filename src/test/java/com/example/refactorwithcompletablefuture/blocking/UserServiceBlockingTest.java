@@ -1,12 +1,12 @@
 package com.example.refactorwithcompletablefuture.blocking;
 
-import blocking.repository.ArticleRepository;
-import blocking.repository.FollowRepository;
-import blocking.repository.ImageRepository;
-import blocking.repository.UserRepository;
-import blocking.service.UserBlockingService;
-import common.Image;
-import common.User;
+import com.example.refactorwithcompletablefuture.blocking.repository.ArticleRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.FollowRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.ImageRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.UserRepository;
+import com.example.refactorwithcompletablefuture.blocking.service.UserBlockingService;
+import com.example.refactorwithcompletablefuture.common.Image;
+import com.example.refactorwithcompletablefuture.common.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

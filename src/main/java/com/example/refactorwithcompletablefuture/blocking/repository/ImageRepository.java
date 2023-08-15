@@ -1,6 +1,6 @@
-package blocking.repository;
+package com.example.refactorwithcompletablefuture.blocking.repository;
 
-import common.repository.ImageEntity;
+import com.example.refactorwithcompletablefuture.common.repository.ImageEntity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,11 +1,11 @@
-package common;
+package com.example.refactorwithcompletablefuture.common.repository;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Image {
+public class ImageEntity {
 
     private final String id;
     private final String name;

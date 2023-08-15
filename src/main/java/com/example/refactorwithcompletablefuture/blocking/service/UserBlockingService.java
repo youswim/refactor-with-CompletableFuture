@@ -1,13 +1,13 @@
-package blocking.service;
+package com.example.refactorwithcompletablefuture.blocking.service;
 
 
-import blocking.repository.ArticleRepository;
-import blocking.repository.FollowRepository;
-import blocking.repository.ImageRepository;
-import blocking.repository.UserRepository;
-import common.Article;
-import common.Image;
-import common.User;
+import com.example.refactorwithcompletablefuture.blocking.repository.ArticleRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.FollowRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.ImageRepository;
+import com.example.refactorwithcompletablefuture.blocking.repository.UserRepository;
+import com.example.refactorwithcompletablefuture.common.Article;
+import com.example.refactorwithcompletablefuture.common.Image;
+import com.example.refactorwithcompletablefuture.common.User;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;

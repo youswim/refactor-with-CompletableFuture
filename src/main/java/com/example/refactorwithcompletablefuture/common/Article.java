@@ -1,4 +1,4 @@
-package common;
+package com.example.refactorwithcompletablefuture.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
