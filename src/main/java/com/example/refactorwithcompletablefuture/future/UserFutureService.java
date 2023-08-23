@@ -27,7 +27,7 @@ public class UserFutureService {
     @SneakyThrows
     public CompletableFuture<Optional<User>> getUserById(String id) {
         return userFutureRepository.findById(id)
-                .thenCompose(this::getUser); // 이걸로 왜 바꾼건지..?
+                .thenComposeAsync(this::getUser); // 이걸로 왜 바꾼건지..?
     }
 
     @SneakyThrows
@@ -41,16 +41,26 @@ public class UserFutureService {
         }
         var userEntity = userEntityOptional.get(); // 위에서 empty인 경우는 반환했으므로, get을 바로 해도 된다.
 
-        var image = imageFutureRepository.findById(userEntity.getProfileImageId()).get()
-                .map(imageEntity -> new Image(imageEntity.getId(), imageEntity.getName(), imageEntity.getUrl()));
+        var imageFuture = imageFutureRepository.findById(userEntity.getProfileImageId())
+                .thenApplyAsync(imageEntityOptional -> {
+                    return imageEntityOptional.map(imageEntity -> {
+                        return new Image(imageEntity.getId(), imageEntity.getName(), imageEntity.getUrl());
+                    });
+                });
 
-        var articles = articleFutureRepository.findAllByUserId(userEntity.getId()).get()
-                .stream().map(articleEntity ->
-                        new Article(articleEntity.getId(), articleEntity.getTitle(), articleEntity.getContent(), articleEntity.getUserId()))
-                .collect(Collectors.toList());
+        var articlesFuture = articleFutureRepository.findAllByUserId(userEntity.getId())
+                .thenApplyAsync(articleEntities -> {
+                    return articleEntities.stream()
+                            .map(articleEntity ->
+                                    new Article(articleEntity.getId(), articleEntity.getTitle(), articleEntity.getContent(), articleEntity.getUserId()))
+                            .collect(Collectors.toList());
+                });
 
-        var follorCount = followFutureRepository.countByUserId(userEntity.getId()).get();
+        var followCountFuture = followFutureRepository.countByUserId(userEntity.getId());
 
+        var image = imageFuture.get();
+        var articles = articlesFuture.get();
+        var followCount = followCountFuture.get();
 
         return CompletableFuture.completedFuture(
                 Optional.of(
@@ -60,7 +70,7 @@ public class UserFutureService {
                                 userEntity.getAge(),
                                 image,
                                 articles,
-                                follorCount
+                                followCount
                         )
                 )
         );
