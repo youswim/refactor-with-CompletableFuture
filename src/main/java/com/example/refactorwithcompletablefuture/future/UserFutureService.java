@@ -58,22 +58,28 @@ public class UserFutureService {
 
         var followCountFuture = followFutureRepository.countByUserId(userEntity.getId());
 
-        var image = imageFuture.get();
-        var articles = articlesFuture.get();
-        var followCount = followCountFuture.get();
+        return CompletableFuture.allOf(imageFuture, articlesFuture, followCountFuture)
+                .thenApplyAsync(v -> {
+                            try {
+                                // allOf의 파라미터로 전달된 Future들이 모두 완료된 경우에만 이 로직이 실행되므로, get으로 결과값을 가져온다고 하더라도 문제되지 않는다.
+                                var image = imageFuture.get();
+                                var articles = articlesFuture.get();
+                                var followCount = followCountFuture.get();
 
-        return CompletableFuture.completedFuture(
-                Optional.of(
-                        new User(
-                                userEntity.getId(),
-                                userEntity.getName(),
-                                userEntity.getAge(),
-                                image,
-                                articles,
-                                followCount
-                        )
-                )
-        );
+                                return Optional.of(
+                                        new User(
+                                                userEntity.getId(),
+                                                userEntity.getName(),
+                                                userEntity.getAge(),
+                                                image,
+                                                articles,
+                                                followCount
+                                        )
+                                );
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                );
     }
-
 }
